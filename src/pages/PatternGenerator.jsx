@@ -150,20 +150,31 @@ function GridRenderer({ matrix, pal, animated, visibleCount, showGrid, zoom }) {
             const filled = val === 1
 
             return (
-              <div key={ci} style={{
-                width: cell,
-                height: cell,
-                margin: gap,
-                borderRadius: Math.max(2, cell * 0.18),
-                background: filled && show
-                  ? `linear-gradient(135deg,${pal.a},${pal.b})`
-                  : 'transparent',
-                boxShadow: filled && show ? `0 0 ${cell*0.5}px ${pal.a}55` : 'none',
-                opacity: filled ? (show ? 1 : 0) : 0,
-                outline: showGrid ? `1px solid ${pal.a}22` : 'none',
-                transition: animated ? 'opacity 0.12s ease' : 'none',
-              }} />
-            )
+            <div key={ci} style={{
+              width: cell,
+    height: cell,
+    margin: gap,
+    borderRadius: Math.max(2, cell * 0.18),
+
+    background: filled && show
+      ? `linear-gradient(135deg,${pal.a},${pal.b})`
+      : 'transparent',
+
+    boxShadow: filled && show
+      ? `0 0 ${cell * 0.6}px ${pal.a}66`
+      : 'none',
+
+    opacity: filled ? (show ? 1 : 0) : 0,
+
+    transform: filled && show ? 'scale(1)' : 'scale(0.6)',
+
+    outline: showGrid ? `1px solid ${pal.a}22` : 'none',
+
+    transition: animated
+      ? 'opacity 0.12s ease, transform 0.15s ease'
+      : 'opacity 0.1s ease'
+  }} />
+)
           })}
         </div>
       ))}
