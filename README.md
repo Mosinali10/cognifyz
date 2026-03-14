@@ -2,7 +2,7 @@
 
 A production-quality React web application featuring six interactive developer tools — all in one clean, responsive dashboard. Built as part of the **Cognifyz Technologies Internship**.
 
-> Live demo: [Deploy on Vercel](#deployment)
+> 🌐 **Live Demo: [cognifyz-eight.vercel.app](https://cognifyz-eight.vercel.app/)**
 
 ---
 
