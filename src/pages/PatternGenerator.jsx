@@ -132,8 +132,8 @@ function GridPattern({ grid, palette, animated, visibleCount }) {
 
   const maxCols = Math.max(...grid.map(r => r.length))
   const totalRows = grid.length
-  const cellPx = Math.max(6, Math.min(28, Math.floor(500 / Math.max(maxCols, totalRows))))
-  const margin = Math.max(1, Math.floor(cellPx * 0.08))
+  const cellPx = Math.max(6, Math.min(26, Math.floor(480 / Math.max(maxCols, totalRows))))
+  const gap = Math.max(1, Math.floor(cellPx * 0.1))
 
   let cellIdx = 0
 
@@ -143,22 +143,21 @@ function GridPattern({ grid, palette, animated, visibleCount }) {
         <div key={ri} style={{ display: 'flex', justifyContent: 'center' }}>
           {row.map((filled, ci) => {
             const idx = cellIdx++
-            const visible = !animated || idx < visibleCount
-            const gradPct = maxCols > 1 ? ci / (maxCols - 1) : 0
+            const show = !animated || idx < visibleCount
             return (
               <div
                 key={ci}
                 style={{
-                  width: cellPx, height: cellPx,
-                  margin,
-                  borderRadius: Math.max(2, cellPx * 0.18),
-                  background: filled && visible
+                  width: cellPx,
+                  height: cellPx,
+                  margin: gap,
+                  borderRadius: Math.max(2, cellPx * 0.2),
+                  background: filled
                     ? `linear-gradient(135deg, ${pal.a}, ${pal.b})`
                     : 'transparent',
-                  boxShadow: filled && visible ? `0 0 ${cellPx*0.6}px ${pal.a}55` : 'none',
-                  opacity: filled && visible ? 1 : filled ? 0 : 0,
-                  transform: filled && visible ? 'scale(1)' : filled ? 'scale(0.3)' : 'scale(1)',
-                  transition: animated ? `opacity 0.12s ease, transform 0.12s ease` : 'none',
+                  boxShadow: filled && show ? `0 0 ${cellPx * 0.5}px ${pal.a}44` : 'none',
+                  opacity: filled ? (show ? 1 : 0) : 0,
+                  transition: animated ? 'opacity 0.15s ease' : 'none',
                 }}
               />
             )
@@ -173,17 +172,16 @@ function GridPattern({ grid, palette, animated, visibleCount }) {
 function MazePattern({ grid, palette }) {
   const pal = PALETTES.find(p => p.id === palette) || PALETTES[0]
   if (!grid || grid.length === 0) return null
-  const rows = grid.length, cols = grid[0].length
-  const cellPx = Math.max(4, Math.min(18, Math.floor(500 / cols)))
+  const cols = grid[0].length
+  const cellPx = Math.max(4, Math.min(16, Math.floor(480 / cols)))
   return (
-    <div style={{ display: 'inline-block', lineHeight: 0 }}>
+    <div style={{ display: 'inline-block', lineHeight: 0, borderRadius: 6, overflow: 'hidden' }}>
       {grid.map((row, ri) => (
         <div key={ri} style={{ display: 'flex' }}>
           {row.map((wall, ci) => (
             <div key={ci} style={{
               width: cellPx, height: cellPx,
-              background: wall ? pal.a : '#f8fafc',
-              transition: 'background 0.1s',
+              background: wall ? pal.a : '#ffffff',
             }} />
           ))}
         </div>

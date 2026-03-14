@@ -66,7 +66,8 @@ export function generatePattern(type, size) {
     case 'triangle':
     case 'pyramid':
       return Array.from({ length: s }, (_, i) => {
-        const stars = 2 * i + 1, start = s - i - 1
+        const stars = 2 * i + 1
+        const start = Math.floor((w2 - stars) / 2)
         return Array.from({ length: w2 }, (_, j) => j >= start && j < start + stars)
       })
 
@@ -188,33 +189,28 @@ export function generatePattern(type, size) {
     }
 
     case 'ulam': {
-      const n = s % 2 === 0 ? s+1 : s
+      const n = s % 2 === 0 ? s + 1 : s
       const grid = Array.from({ length: n }, () => Array(n).fill(false))
-      // Fill with primes via sieve
       const total = n * n
-      const sieve = Array(total+1).fill(true)
+      const sieve = Array(total + 1).fill(true)
       sieve[0] = sieve[1] = false
       for (let i = 2; i <= Math.sqrt(total); i++)
-        if (sieve[i]) for (let j = i*i; j <= total; j += i) sieve[j] = false
+        if (sieve[i]) for (let j = i * i; j <= total; j += i) sieve[j] = false
 
-      // Spiral walk
-      let x = Math.floor(n/2), y = Math.floor(n/2), num = 1
-      const dirs = [[0,0],[1,0],[0,-1],[-1,0],[0,1]]
-      let dx = 0, dy = 1, steps = 1, turned = 0
-      grid[y][x] = sieve[num]
-      num++
+      // Spiral: right, up, left, down — expanding
+      let x = Math.floor(n / 2), y = Math.floor(n / 2), num = 1
+      grid[y][x] = sieve[num++]
+      let dx = 1, dy = 0, steps = 1, stepCount = 0, turns = 0
       while (num <= total) {
-        for (let seg = 0; seg < 2 && num <= total; seg++) {
-          for (let i = 0; i < steps && num <= total; i++) {
-            x += dx; y += dy
-            if (y >= 0 && y < n && x >= 0 && x < n) grid[y][x] = sieve[num]
-            num++
-          }
-          // turn left
-          ;[dx, dy] = [-dy, dx]
-          turned++
-          if (turned % 2 === 0) steps++
+        for (let i = 0; i < steps && num <= total; i++) {
+          x += dx; y += dy
+          if (y >= 0 && y < n && x >= 0 && x < n) grid[y][x] = sieve[num]
+          num++
         }
+        // turn left (dx,dy): right→up→left→down
+        ;[dx, dy] = [-dy, dx]
+        turns++
+        if (turns % 2 === 0) steps++
       }
       return grid
     }
@@ -251,12 +247,13 @@ export function generateMaze(size) {
 
   function carve(r, c) {
     visited[r][c] = true
-    walls[r*2+1][c*2+1] = false // cell itself open
+    walls[r*2+1][c*2+1] = false // open this cell
     const dirs = [[0,1],[0,-1],[1,0],[-1,0]].sort(() => Math.random()-0.5)
     for (const [dr, dc] of dirs) {
       const nr = r+dr, nc = c+dc
       if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc]) {
-        walls[r*2+1+dr][c*2+1+dc] = false // remove wall between
+        // wall between (r,c) and (nr,nc) is at the midpoint in wall-grid coords
+        walls[r*2+1+dr][c*2+1+dc] = false
         carve(nr, nc)
       }
     }
