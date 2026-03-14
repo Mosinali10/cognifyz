@@ -132,13 +132,14 @@ function GridPattern({ grid, palette, animated, visibleCount }) {
 
   const maxCols = Math.max(...grid.map(r => r.length))
   const totalRows = grid.length
-  const cellPx = Math.max(6, Math.min(26, Math.floor(480 / Math.max(maxCols, totalRows))))
-  const gap = Math.max(1, Math.floor(cellPx * 0.1))
+  // cell + gap must fit within ~460px in both dimensions
+  const cellPx = Math.max(4, Math.min(20, Math.floor(460 / (Math.max(maxCols, totalRows) * 1.15))))
+  const gap = Math.max(1, Math.round(cellPx * 0.12))
 
   let cellIdx = 0
 
   return (
-    <div style={{ display: 'inline-block' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
       {grid.map((row, ri) => (
         <div key={ri} style={{ display: 'flex', justifyContent: 'center' }}>
           {row.map((filled, ci) => {
@@ -447,7 +448,8 @@ export default function PatternGenerator() {
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: 380,
-            overflow: 'auto',
+            overflow: 'hidden',
+            width: '100%',
           }}>
             {isCanvas && <CanvasPattern type={type} depth={depth} palette={palette} size={size} />}
             {isGrid   && <GridPattern grid={grid} palette={palette} animated={animated} visibleCount={visibleCount} />}
