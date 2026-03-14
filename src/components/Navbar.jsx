@@ -17,8 +17,11 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        <div className="logo">&lt;/&gt;</div>
-        Dev Utility Hub
+        <div className="logo">C</div>
+        <div className="navbar-brand-text">
+          <span className="navbar-brand-main">Cognifyz</span>
+          <span className="navbar-brand-sub">Internship Projects</span>
+        </div>
       </Link>
 
       <button className="navbar-menu-btn" onClick={() => setOpen(o => !o)} aria-label="Toggle menu">

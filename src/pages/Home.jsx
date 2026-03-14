@@ -55,14 +55,14 @@ export default function Home() {
   return (
     <div className="page">
       <div className="hero">
-        <div className="hero-badge">✦ Developer Utility Hub</div>
+        <div className="hero-badge">🎓 Cognifyz Technologies Internship</div>
         <h1>
-          Your all-in-one<br />
-          <span>developer toolkit</span>
+          All internship projects<br />
+          <span>in one place</span>
         </h1>
         <p>
-          Six interactive tools built with React — from data management to live API
-          exploration, all in one clean dashboard.
+          Six Python CLI projects rebuilt as interactive web tools — showcasing
+          real-world skills from CRUD operations to web scraping and game logic.
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default function Home() {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '4rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-        Built with React + Vite · Deployable on Vercel
+        Cognifyz Technologies Internship · Built with React + Vite · Deployable on Vercel
       </div>
     </div>
   )

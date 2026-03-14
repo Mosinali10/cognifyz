@@ -2,24 +2,24 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #0f0f13;
-  --bg-card:     #1a1a24;
-  --bg-input:    #12121a;
-  --border:      #2a2a3a;
-  --border-focus:#6366f1;
-  --accent:      #6366f1;
-  --accent-2:    #8b5cf6;
-  --accent-glow: rgba(99,102,241,0.25);
-  --success:     #22c55e;
-  --danger:      #ef4444;
+  --bg:          #0a0a0f;
+  --bg-card:     #13131c;
+  --bg-input:    #0d0d15;
+  --border:      #1e1e2e;
+  --border-focus:#4f6ef7;
+  --accent:      #4f6ef7;
+  --accent-2:    #7c5cfc;
+  --accent-glow: rgba(79,110,247,0.2);
+  --success:     #10b981;
+  --danger:      #f43f5e;
   --warning:     #f59e0b;
-  --text:        #e2e8f0;
-  --text-muted:  #64748b;
-  --text-dim:    #94a3b8;
-  --radius:      12px;
+  --text:        #f1f5f9;
+  --text-muted:  #4b5563;
+  --text-dim:    #8b9ab0;
+  --radius:      14px;
   --radius-sm:   8px;
-  --shadow:      0 4px 24px rgba(0,0,0,0.4);
-  --transition:  0.2s ease;
+  --shadow:      0 4px 32px rgba(0,0,0,0.5);
+  --transition:  0.18s ease;
 }
 
 html { scroll-behavior: smooth; }
@@ -178,10 +178,10 @@ code {
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-.badge-accent   { background: rgba(99,102,241,0.15); color: var(--accent); }
-.badge-success  { background: rgba(34,197,94,0.15);  color: var(--success); }
-.badge-warning  { background: rgba(245,158,11,0.15); color: var(--warning); }
-.badge-danger   { background: rgba(239,68,68,0.15);  color: var(--danger); }
+.badge-accent   { background: rgba(79,110,247,0.12);  color: var(--accent); }
+.badge-success  { background: rgba(16,185,129,0.12);  color: var(--success); }
+.badge-warning  { background: rgba(245,158,11,0.12);  color: var(--warning); }
+.badge-danger   { background: rgba(244,63,94,0.12);   color: var(--danger); }
 
 /* ── Divider ──────────────────────────────────────────────────── */
 .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
@@ -285,16 +285,34 @@ tr:hover td { background: rgba(99,102,241,0.04); }
   text-decoration: none;
 }
 .navbar-brand .logo {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border-radius: 8px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 900;
   color: #fff;
-  font-family: monospace;
+  font-family: 'Georgia', serif;
+  flex-shrink: 0;
+}
+.navbar-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.navbar-brand-main {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.navbar-brand-sub {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .navbar-links {
   display: flex;
@@ -348,8 +366,8 @@ tr:hover td { background: rgba(99,102,241,0.04); }
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(99,102,241,0.12);
-  border: 1px solid rgba(99,102,241,0.3);
+  background: rgba(79,110,247,0.1);
+  border: 1px solid rgba(79,110,247,0.25);
   color: var(--accent);
   padding: 0.35rem 0.9rem;
   border-radius: 999px;
@@ -390,7 +408,7 @@ tr:hover td { background: rgba(99,102,241,0.04); }
 .tool-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(99,102,241,0.15);
+  box-shadow: 0 8px 32px rgba(79,110,247,0.12);
   text-decoration: none;
 }
 .tool-card-icon {
@@ -554,13 +572,13 @@ tr:hover td { background: rgba(99,102,241,0.04); }
 .game-resources { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
 .resource-chip {
   padding: 0.25rem 0.65rem;
-  background: rgba(99,102,241,0.12);
-  border: 1px solid rgba(99,102,241,0.25);
+  background: rgba(79,110,247,0.1);
+  border: 1px solid rgba(79,110,247,0.2);
   border-radius: 999px;
   font-size: 0.78rem;
   color: var(--accent);
 }
-.resource-chip.lost { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: var(--danger); text-decoration: line-through; }
+.resource-chip.lost { background: rgba(244,63,94,0.1); border-color: rgba(244,63,94,0.25); color: var(--danger); text-decoration: line-through; }
 .score-bar { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; }
 .score-item { text-align: center; }
 .score-item .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
