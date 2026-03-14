@@ -69,6 +69,16 @@ export const PATTERN_CATEGORIES = [
       { id: 'life', label: "Conway's Game of Life",  renderer: 'life' },
     ],
   },
+  {
+    label: '3D Patterns',
+    patterns: [
+      { id: 'pyramid3d', label: '3D Pyramid',    renderer: 'grid' },
+      { id: 'stairs3d',  label: '3D Staircase',  renderer: 'grid' },
+      { id: 'diamond3d', label: 'Voxel Diamond', renderer: 'grid' },
+      { id: 'tower',     label: 'Cube Tower',    renderer: 'grid' },
+      { id: 'spiral3d',  label: 'Cube Spiral',   renderer: 'grid' },
+    ],
+  },
 ]
 
 export const PATTERN_TYPES = PATTERN_CATEGORIES.flatMap(c => c.patterns)
@@ -331,6 +341,75 @@ export function generatePattern(type, size) {
         rows.push(row)
       }
       return normalize(rows)
+    }
+
+    // ── 3D Pyramid (concentric squares shrinking toward center) ──
+    case 'pyramid3d': {
+      const rows = Array.from({ length: s }, (_, i) =>
+        Array.from({ length: s }, (_, j) => {
+          const dist = Math.min(i, j, s-1-i, s-1-j)
+          return dist % 2 === 0 ? 1 : 0
+        })
+      )
+      return normalize(rows)
+    }
+
+    // ── 3D Staircase (diagonal bands) ──
+    case 'stairs3d': {
+      const rows = Array.from({ length: s }, (_, i) =>
+        Array.from({ length: s }, (_, j) => (i + j) % 3 !== 2 ? 1 : 0)
+      )
+      return normalize(rows)
+    }
+
+    // ── Voxel Diamond (ring-based diamond) ──
+    case 'diamond3d': {
+      const w = 2 * s - 1
+      const rows = Array.from({ length: w }, (_, i) =>
+        Array.from({ length: w }, (_, j) => {
+          const di = Math.abs(i - (s - 1))
+          const dj = Math.abs(j - (s - 1))
+          return di + dj <= s - 1 ? 1 : 0
+        })
+      )
+      return normalize(rows)
+    }
+
+    // ── Cube Tower (vertical stripe columns) ──
+    case 'tower': {
+      const rows = Array.from({ length: s }, (_, i) =>
+        Array.from({ length: s }, (_, j) => {
+          const col = j % 3
+          const rowOff = Math.floor(j / 3) % 2
+          return col < 2 && (i + rowOff) % 3 !== 2 ? 1 : 0
+        })
+      )
+      return normalize(rows)
+    }
+
+    // ── Cube Spiral (Archimedean spiral of filled cells) ──
+    case 'spiral3d': {
+      const n = s % 2 === 0 ? s + 1 : s
+      const grid = Array.from({ length: n }, () => Array(n).fill(0))
+      let x = Math.floor(n / 2), y = Math.floor(n / 2)
+      let dx = 1, dy = 0, steps = 1, turns = 0, num = 0
+      const total = n * n
+      grid[y][x] = 1
+      num++
+      while (num < total) {
+        for (let seg = 0; seg < 2 && num < total; seg++) {
+          for (let i = 0; i < steps && num < total; i++) {
+            x += dx; y += dy
+            if (y >= 0 && y < n && x >= 0 && x < n)
+              grid[y][x] = num % 4 !== 3 ? 1 : 0
+            num++
+          }
+          ;[dx, dy] = [-dy, dx]
+          turns++
+        }
+        steps++
+      }
+      return normalize(grid)
     }
 
     default:

@@ -124,18 +124,22 @@ function CanvasPattern({ type, depth, pal }) {
       style={{ width:'100%', height:'auto', display:'block', borderRadius:8 }} />
   )
 }
-
 // ── Grid renderer — renders from normalized matrix ────────────────────────
 function GridRenderer({ matrix, pal, animated, visibleCount, showGrid, zoom }) {
   if (!matrix || matrix.length === 0) return null
+
   const rows = matrix.length
   const cols = matrix[0].length
-  // Compute cell size to fit within 520px, respecting zoom
-  const base = Math.max(4, Math.min(24, Math.floor(520 / Math.max(rows, cols))))
+
+  // Compute cell size to fit within 520px
+  const maxDim = Math.max(rows, cols)
+  const base = Math.max(6, Math.min(28, Math.floor(520 / maxDim)))
+
   const cell = Math.round(base * zoom)
   const gap  = Math.max(1, Math.round(cell * 0.1))
 
   let idx = 0
+
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:0 }}>
       {matrix.map((row, ri) => (
@@ -144,9 +148,11 @@ function GridRenderer({ matrix, pal, animated, visibleCount, showGrid, zoom }) {
             const i = idx++
             const show = !animated || i < visibleCount
             const filled = val === 1
+
             return (
               <div key={ci} style={{
-                width: cell, height: cell,
+                width: cell,
+                height: cell,
                 margin: gap,
                 borderRadius: Math.max(2, cell * 0.18),
                 background: filled && show
@@ -338,7 +344,7 @@ export default function PatternGenerator() {
   const [size,     setSize]     = useState(8)
   const [depth,    setDepth]    = useState(4)
   const [palette,  setPalette]  = useState('indigo')
-  const [animated, setAnimated] = useState(true)
+  const [animated, setAnimated] = useState(false)
   const [speed,    setSpeed]    = useState(3)
   const [showGrid, setShowGrid] = useState(false)
   const [zoom,     setZoom]     = useState(1)
@@ -356,38 +362,70 @@ export default function PatternGenerator() {
   const pal      = PALETTES.find(p => p.id === palette) || PALETTES[0]
 
   // Generate normalized matrix for grid patterns
-  const { matrix, width: mw, height: mh } = isGrid
-    ? generatePattern(type, size)
-    : { matrix: [], width: 0, height: 0 }
+ const { matrix, width: mw, height: mh } = isGrid
+  ? generatePattern(type, size)
+  : { matrix: [], width: 0, height: 0 }
 
-  const totalFilled = matrix.flat().filter(v => v === 1).length
+const totalFilled = matrix.flat().filter(v => v === 1).length
 
-  // ── Animation effect ──
-  useEffect(() => {
-    if (!isGrid || !animated) { setVisible(Infinity); return }
-    setVisible(0)
-    if (totalFilled === 0) return
-    const step = Math.max(1, Math.floor(speed * 2))
-    const ms   = Math.max(10, 70 - speed * 12)
-    let count  = 0
-    const id   = setInterval(() => {
-      count += step
-      setVisible(count)
-      if (count >= totalFilled) clearInterval(id)
-    }, ms)
-    return () => clearInterval(id)
-  }, [type, size, animated, speed])
+// ── Animation effect ──
+useEffect(() => {
+  if (!isGrid || !animated) {
+    setVisible(Infinity)
+    return
+  }
 
+  setVisible(0)
+
+  if (totalFilled === 0) return
+
+  const step = Math.max(1, Math.floor(speed * 2))
+  const ms   = Math.max(10, 70 - speed * 12)
+
+  let count = 0
+
+  const id = setInterval(() => {
+    count += step
+    setVisible(prev => {
+      const next = prev + step
+      return next >= totalFilled ? totalFilled : next
+    })
+
+    if (count >= totalFilled) clearInterval(id)
+
+  }, ms)
+
+  return () => clearInterval(id)
+
+}, [type, size, animated, speed, totalFilled, isGrid])
   // ── Life loop ──
-  useEffect(() => {
-    if (!lifeRun) return
-    const ms = Math.max(50, 380 - speed * 60)
-    const id = setInterval(() => {
-      setLifeGrid(g => stepLife(g))
-      setLifeGen(g => g + 1)
-    }, ms)
-    return () => clearInterval(id)
-  }, [lifeRun, speed])
+ useEffect(() => {
+  if (!isGrid || !animated) { 
+    setVisible(Infinity)
+    return
+  }
+
+  setVisible(0)
+
+  if (totalFilled === 0) return
+
+  const step = Math.max(1, Math.floor(speed * 2))
+  const ms = Math.max(10, 70 - speed * 12)
+
+  let count = 0
+
+  const id = setInterval(() => {
+    count += step
+
+    setVisible(prev => Math.min(prev + step, totalFilled))
+
+    if (count >= totalFilled) clearInterval(id)
+
+  }, ms)
+
+  return () => clearInterval(id)
+
+}, [type, size, animated, speed, totalFilled])
 
   const handleType = (id) => {
     setType(id)
