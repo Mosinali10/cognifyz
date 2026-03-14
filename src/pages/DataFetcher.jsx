@@ -2,34 +2,56 @@ import { useState } from 'react'
 import { API_SOURCES, fetchFromSource } from '../utils/apiUtils'
 import Button from '../components/Button'
 
-// ── Web Scraper via allorigins proxy (bypasses CORS) ──────────────────────
-async function scrapeUrl(url) {
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
-  const res = await fetch(proxy)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  const html = json.contents
+// ── Web Scraper — tries multiple CORS proxies ─────────────────────────────
 
-  // Parse with DOMParser
+const PROXIES = [
+  (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+]
+
+async function scrapeUrl(url) {
+  let html = null
+  let lastErr = null
+
+  // Try allorigins first (returns JSON with .contents)
+  try {
+    const res = await fetch(PROXIES[0](url), { signal: AbortSignal.timeout(8000) })
+    if (res.ok) {
+      const json = await res.json()
+      if (json.contents) html = json.contents
+    }
+  } catch (e) { lastErr = e }
+
+  // Fallback: corsproxy.io returns raw HTML directly
+  if (!html) {
+    try {
+      const res = await fetch(PROXIES[1](url), { signal: AbortSignal.timeout(8000) })
+      if (res.ok) html = await res.text()
+    } catch (e) { lastErr = e }
+  }
+
+  if (!html) {
+    throw new Error(lastErr?.message || 'All proxies failed. The site may block scraping.')
+  }
+
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
 
   const title = doc.querySelector('title')?.textContent?.trim() || url
 
-  // Extract headings + paragraphs
   const items = []
   doc.querySelectorAll('h1,h2,h3,p').forEach((el, i) => {
     const text = el.textContent.trim()
-    if (text.length > 20) {
-      items.push({
-        id: i,
-        tag: el.tagName.toLowerCase(),
-        text,
-      })
+    if (text.length > 15) {
+      items.push({ id: i, tag: el.tagName.toLowerCase(), text })
     }
   })
 
-  return { title, items: items.slice(0, 40) }
+  if (items.length === 0) {
+    throw new Error('Page loaded but no readable content found. Try a different URL.')
+  }
+
+  return { title, items: items.slice(0, 50) }
 }
 
 const TAG_COLORS = {
@@ -142,25 +164,37 @@ export default function DataFetcher() {
             </div>
 
             {/* Quick example URLs */}
-            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Try:</span>
-              {['https://example.com', 'https://quotes.toscrape.com', 'https://books.toscrape.com'].map(u => (
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Try these (scraping-friendly):</span>
+              {[
+                'https://example.com',
+                'https://quotes.toscrape.com',
+                'https://books.toscrape.com',
+                'https://en.wikipedia.org/wiki/Python_(programming_language)',
+              ].map(u => (
                 <button
                   key={u}
                   onClick={() => setScrapeUrl(u)}
                   style={{ fontSize: '0.75rem', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 4, padding: '0.2rem 0.5rem', color: 'var(--accent)', cursor: 'pointer' }}
                 >
-                  {u.replace('https://', '')}
+                  {u.replace('https://', '').split('/')[0]}
                 </button>
               ))}
             </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+              ⚠️ Some sites (Google, Twitter, etc.) block external scraping — use the examples above for reliable results.
+            </p>
           </div>
 
           {scrapeLoading && <div className="spinner" />}
 
           {scrapeError && (
             <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '1rem', color: 'var(--danger)', marginBottom: '1rem' }}>
-              ❌ {scrapeError}
+              <div style={{ fontWeight: 600, marginBottom: '0.4rem' }}>❌ Scraping failed</div>
+              <div style={{ fontSize: '0.875rem' }}>{scrapeError}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                Try one of the example URLs above — they are confirmed to work.
+              </div>
             </div>
           )}
 

@@ -162,7 +162,9 @@ export default function Game() {
       update({ phase: 'win', score: gs.score + 25 })
     } else {
       const next = loseResource(gs)
-      setGs({ ...gs, ...next, phase: next.phase === 'lose' ? 'lose' : 'lose' })
+      // If resources ran out → lose, otherwise stay on monster stage and let them retry
+      setGs({ ...gs, ...next, answer: '', feedback: 'wrong' })
+      setTimeout(() => setGs(prev => ({ ...prev, feedback: null })), 800)
     }
   }
 
@@ -305,13 +307,24 @@ export default function Game() {
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🐉</div>
             <p style={{ color: 'var(--warning)', marginBottom: '1rem', fontWeight: 600 }}>A monster lurks in the shadows! Solve this riddle to hide:</p>
             <p className="question">❓ {gs.question.q}</p>
+            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+              💡 Hint: {gs.question.hint}
+            </div>
+            <div className="game-resources" style={{ marginBottom: '1rem' }}>
+              {RESOURCES.map(r => (
+                <span key={r} className={`resource-chip${gs.resources.includes(r) ? '' : ' lost'}`}>{r}</span>
+              ))}
+            </div>
             <input
               className="input"
               placeholder="Your answer..."
               value={gs.answer}
               onChange={e => update({ answer: e.target.value })}
               onKeyDown={e => e.key === 'Enter' && handleMonsterAnswer()}
-              style={{ marginBottom: '1rem' }}
+              style={{
+                marginBottom: '1rem',
+                borderColor: gs.feedback === 'correct' ? 'var(--success)' : gs.feedback === 'wrong' ? 'var(--danger)' : undefined,
+              }}
             />
             <Button onClick={handleMonsterAnswer}>Submit</Button>
           </div>
